@@ -1,0 +1,10 @@
+{
+    "service": "gmail",
+    "auth": {
+        "type": "OAuth2",
+        "user": "soporte.marlonstefan@gmail.com",
+        "clientId": "681389021348-mc4l8udkstkikffraqcconic99uj5sot.apps.googleusercontent.com",
+        "clientSecret": "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",
+        "refreshToken": "1//04XOhlNQFC8BUCgYIARAAGAQSNwF-L9IrZ4HwOpTPVE9MLdxKiyIrbwM93ez7AkPqQtlnghnHmnLVt3VCMyAaziSrTLEPpszKSBQ"
+    }
+}
