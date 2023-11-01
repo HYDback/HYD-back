@@ -204,7 +204,7 @@ exports.Signin = async (req, res) =>{
             }else if(respOrm.token){
                 message = 'Valid Credentials', statusCode = enum_.CODE_OK, data = respOrm;
             }else{
-                status = false, message = 'Invalid Credentials', statusCode = enum_.CODE_OK;
+                status = false, message = 'Invalid Credentials', statusCode = enum_.CODE_FORBIDDEN;
             }
         }else{
             status = false, errorCode = enum_.ERROR_REQUIRED_FIELD, message = 'All fields are required', statusCode = enum_.CODE_BAD_REQUEST;
@@ -228,7 +228,7 @@ exports.verifyToken = async (req, res) =>{
             }else if(respOrm.decoded){
                 message = 'Valid token', statusCode = enum_.CODE_OK, data = respOrm;
             }else{
-                status = false, message = 'Invalid token', statusCode = enum_.CODE_OK;
+                status = false, message = 'Invalid token', statusCode = enum_.CODE_BAD_REQUEST;
             }
         }else{
             status = false, errorCode = enum_.ERROR_REQUIRED_FIELD, message = 'All fields are required', statusCode = enum_.CODE_BAD_REQUEST;
