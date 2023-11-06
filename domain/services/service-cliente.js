@@ -45,8 +45,8 @@ exports.GetById = async (req, res) =>{
 exports.GetByForm = async (req, res) =>{
     let status = true, errorCode ='', message='', data='', statusCode=0, resp={};
     try{
-        const {id, email, nit } = req.body;
-        respOrm = await ormCliente.GetByForm(id, email, nit );
+        const { cedula, nombre, estado } = req.body;
+        respOrm = await ormCliente.GetByFilter(cedula, nombre, estado);
         if(respOrm && respOrm.err){
             status = false, errorCode = respOrm.err.code, message = respOrm.err.messsage, statusCode = enum_.CODE_BAD_REQUEST;
         }else{
@@ -67,9 +67,9 @@ exports.GetByForm = async (req, res) =>{
 exports.Store = async (req, res) =>{
     let status = true, errorCode ='', message='', data='', statusCode=0, resp={};
     try{
-        const { cedula_cli, nombre_cli, apellido_cli, celular_cli, correo_cli, id_emp } = req.body;
-        if( cedula_cli && nombre_cli && apellido_cli && celular_cli && correo_cli && id_emp ){
-            respOrm = await ormCliente.Store( cedula_cli, nombre_cli, apellido_cli, celular_cli, correo_cli, id_emp );
+        const { cedula, nombre, apellido, celular, correo, estado } = req.body;
+        if( cedula && nombre && apellido && celular && correo && estado ){
+            respOrm = await ormCliente.Store( cedula, nombre, apellido, celular, correo, estado );
             if(respOrm.err){
                 status = false, errorCode = respOrm.err.code, message = respOrm.err.messsage, statusCode = enum_.CODE_BAD_REQUEST;
             }else{

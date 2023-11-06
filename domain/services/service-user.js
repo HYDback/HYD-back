@@ -112,9 +112,9 @@ exports.GetByForm = async (req, res) =>{
 exports.Store = async (req, res) =>{
     let status = true, errorCode ='', message='', data='', statusCode=0, resp={};
     try{
-        const { cedula_usu, nombre_usu, correo_usu, nick_usu, contra_usu, tipo_usu } = req.body;
-        if( cedula_usu && nombre_usu && correo_usu && nick_usu && contra_usu && tipo_usu ){
-            respOrm = await ormUser.Store( cedula_usu, nombre_usu, correo_usu, nick_usu, contra_usu, tipo_usu );
+        const { cedula, nombre, correo, nick, contra, tipo, estado } = req.body;
+        if( cedula && nombre && correo && nick && contra && tipo && estado ){
+            respOrm = await ormUser.Store( cedula, nombre, correo, nick, contra, tipo, estado );
             if(respOrm.err){
                 status = false, errorCode = respOrm.err.code, message = respOrm.err.messsage, statusCode = enum_.CODE_BAD_REQUEST;
             }else{
@@ -134,9 +134,9 @@ exports.Store = async (req, res) =>{
 exports.UpdateById = async (req, res) =>{
     let status = true, errorCode ='', message='', data='', statusCode=0, resp={};
     try{
-        const { cedula_usu, correo_usu, nick_usu } = req.body;
-        if( cedula_usu && correo_usu && nick_usu ){
-            respOrm = await ormUser.UpdateById( cedula_usu, correo_usu, nick_usu );
+        const { estado, cedula } = req.body;
+        if( estado && cedula ){
+            respOrm = await ormUser.UpdateById( estado, cedula );
             if(respOrm.err){
                 status = false, errorCode = respOrm.err.code, message = respOrm.err.messsage, statusCode = enum_.CODE_BAD_REQUEST;
             }else{
@@ -196,9 +196,9 @@ exports.DeleteById = async (req, res) =>{
 exports.Signin = async (req, res) =>{
     let status = true, errorCode ='', message='', data='', statusCode=0, resp={};
     try{
-        const { nick_usu, contra_usu } = req.body;
-        if( nick_usu, contra_usu ){
-            respOrm = await ormUser.Signin( nick_usu, contra_usu );
+        const { nick, contra } = req.body;
+        if( nick, contra ){
+            respOrm = await ormUser.Signin( nick, contra );
             if(respOrm.err){
                 status = false, errorCode = respOrm.err.code, message = respOrm.err.messsage, statusCode = enum_.CODE_BAD_REQUEST;
             }else if(respOrm.token){

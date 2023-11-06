@@ -2,7 +2,7 @@ const pool = require('../repositories/repository_postgre');
 
 exports.GetAll = async () =>{
     try{
-        const response = await pool.query('SELECT * FROM producto ORDER BY id_prod');
+        const response = await pool.query('SELECT * FROM producto ORDER BY id');
         return response.rows;
     }catch(err){
         console.log(" err orm-product.GetAll = ", err);
@@ -12,7 +12,7 @@ exports.GetAll = async () =>{
 
 exports.GetById = async ( Id ) =>{
     try{
-        const response = await pool.query(`SELECT * FROM producto WHERE id_prod = '${Id}'`);
+        const response = await pool.query(`SELECT * FROM producto WHERE id = '${Id}'`);
         return response.rows;
     }catch(err){
         console.log(" err orm-product.GetById = ", err);
@@ -20,16 +20,16 @@ exports.GetById = async ( Id ) =>{
     }
 }
 
-exports.GetByFilter = async ( nombre_prod, tipo_prod, calzado_prod, genero_prod ) => {
+exports.GetByFilter = async ( nombre, estado, categoria_id) => {
     let filter = "";
     let at = [];
-    if(nombre_prod != "") at.push(['nombre_prod',nombre_prod])
-    if(tipo_prod != "") at.push(['tipo_prod',tipo_prod])
-    if(calzado_prod != "") at.push(['calzado_prod',calzado_prod])
-    if(genero_prod != "") at.push(['genero_prod', genero_prod])
+    if(nombre) at.push(['p.nombre',nombre])
+    if(estado) at.push(['p.estado',estado])
+    if(categoria_id) at.push(['p.categoria_id',categoria_id])
+    if(at.length > 0) filter += 'WHERE '
     for (let index = 0; index < at.length; index++) {
         if(index == 0){
-            if(at[index][0]=='nombre_prod'){
+            if(at[index][0]=='nombre'){
                 filter+= `${at[index][0]} LIKE '%${at[index][1]}%'`
             }else{
                 filter+= `${at[index][0]} = '${at[index][1]}'`
@@ -39,7 +39,7 @@ exports.GetByFilter = async ( nombre_prod, tipo_prod, calzado_prod, genero_prod 
         }
     }
     try{
-        const response = await pool.query(`SELECT * FROM producto WHERE ${filter}`);
+        const response = await pool.query(`SELECT p.*, c.nombre as categoria_nombre FROM producto as p INNER JOIN categoria as c ON p.categoria_id = c.id  ${filter} ORDER BY id`);
         return response.rows;
     }catch(err){
         console.log(" err orm-product.GetByFilter = ", err);
@@ -47,28 +47,22 @@ exports.GetByFilter = async ( nombre_prod, tipo_prod, calzado_prod, genero_prod 
     }
 }
 
-exports.getFilters = async() => {
+exports.Store = async ( nombre, descripcion, cantidad, estado, categoria_id ) =>{
     try{
-        const tipos = await pool.query('SELECT tipo_prod FROM producto group by tipo_prod');
-        const calzados = await pool.query('SELECT calzado_prod FROM producto group by calzado_prod');
-        const generos = await pool.query('SELECT genero_prod FROM producto group by genero_prod');
-        return {
-            tipos: tipos.rows,
-            calzados: calzados.rows,
-            generos: generos.rows
-        };
+        const response = await pool.query(`INSERT INTO producto (nombre, descripcion, cantidad, estado, categoria_id) VALUES ($1, $2, $3, $4, $5)`, [nombre, descripcion, cantidad, estado, categoria_id]);
+        return true
     }catch(err){
-        console.log(" err orm-product.GetFilters = ", err);
+        console.log(" err orm-product.Store = ", err);
         return await {err:{code: 123, messsage: err}}
     }
 }
 
-exports.Store = async ( id_prod, nombre_prod, tipo_prod, material_prod, calzado_prod, genero_prod, talla_prod, cantidad_prod ) =>{
+exports.Update = async ( estado, id ) =>{
     try{
-        const response = await pool.query(`INSERT INTO producto (id_prod, nombre_prod, tipo_prod, material_prod, calzado_prod, genero_prod, talla_prod, cantidad_prod) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`, [id_prod, nombre_prod, tipo_prod, material_prod, calzado_prod, genero_prod, talla_prod, cantidad_prod]);
+        const response = await pool.query(`UPDATE producto SET estado = $1 WHERE id = $2`, [estado, id]);
         return true
     }catch(err){
-        console.log(" err orm-product.Store = ", err);
+        console.log(" err orm-producto.Update = ", err);
         return await {err:{code: 123, messsage: err}}
     }
 }

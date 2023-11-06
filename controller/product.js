@@ -14,6 +14,7 @@ router.get('/products/', products.GetAll);
 router.get('/products/filters', products.GetFilters);
 router.get('/products/:id', products.GetById);
 router.post('/products/', products.Store);
+router.put('/products/', products.UpdateById);
 router.post('/products/filter', products.GetByFilter);
 
 

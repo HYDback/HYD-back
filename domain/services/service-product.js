@@ -45,12 +45,12 @@ exports.GetById = async (req, res) =>{
 exports.GetByFilter = async (req, res) =>{
     let status = true, errorCode ='', message='', data='', statusCode=0, resp={};
     try{
-        const { nombre_prod, tipo_prod, calzado_prod, genero_prod } = req.body;
-        respOrm = await ormProduct.GetByFilter( nombre_prod, tipo_prod, calzado_prod, genero_prod );
+        const { nombre, estado, categoria_id } = req.body;
+        respOrm = await ormProduct.GetByFilter( nombre, estado, categoria_id );
         if(respOrm.err){
             status = false, errorCode = respOrm.err.code, message = respOrm.err.messsage, statusCode = enum_.CODE_BAD_REQUEST;
         }else{
-            message = 'Success Response', data = respOrm, statusCode = data.length > 0 ? enum_.CODE_OK : enum_.CODE_NO_CONTENT;
+            message = 'Success Response', data = respOrm, statusCode = enum_.CODE_OK;
         }
         resp = await magic.ResponseService(status,errorCode,message,data)
         return res.status(statusCode).send(resp);
@@ -82,9 +82,9 @@ exports.GetFilters = async (req, res) =>{
 exports.Store = async (req, res) =>{
     let status = true, errorCode ='', message='', data='', statusCode=0, resp={};
     try{
-        const { id_prod, nombre_prod, tipo_prod, material_prod, calzado_prod, genero_prod, talla_prod, cantidad_prod } = req.body;
-        if( id_prod && nombre_prod && tipo_prod && material_prod && calzado_prod && genero_prod && talla_prod && cantidad_prod ){
-            respOrm = await ormProduct.Store( id_prod, nombre_prod, tipo_prod, material_prod, calzado_prod, genero_prod, talla_prod, cantidad_prod );
+        const { nombre, descripcion, cantidad, estado, categoria_id } = req.body;
+        if( nombre && descripcion && cantidad && estado && categoria_id ){
+            respOrm = await ormProduct.Store( nombre, descripcion, cantidad, estado, categoria_id );
             if(respOrm.err){
                 status = false, errorCode = respOrm.err.code, message = respOrm.err.messsage, statusCode = enum_.CODE_BAD_REQUEST;
             }else{
@@ -98,5 +98,27 @@ exports.Store = async (req, res) =>{
     } catch(err) {
         console.log("err = ", err);
         return res.status(enum_.CODE_INTERNAL_SERVER_ERROR).send(await magic.ResponseService('Failure',enum_.CRASH_LOGIC,'err',''));
+    }
+}
+
+exports.UpdateById = async (req, res) =>{
+    let status = true, errorCode ='', message='', data='', statusCode=0, resp={};
+    try{
+        const { estado, id } = req.body;
+        if( estado && id ){
+            respOrm = await ormProduct.Update( estado, id );
+            if(respOrm.err){
+                status = false, errorCode = respOrm.err.code, message = respOrm.err.messsage, statusCode = enum_.CODE_BAD_REQUEST;
+            }else{
+                message = 'Categoria actualizada', statusCode = enum_.CODE_CREATED;
+            }
+        }else{
+            status = false, errorCode = enum_.ERROR_REQUIRED_FIELD, message = 'All fields are required', statusCode = enum_.CODE_BAD_REQUEST;
+        }
+        resp = await magic.ResponseService(status,errorCode,message,data)
+        return res.status(statusCode).send(resp);
+    } catch(err) {
+        console.log("err = ", err);
+        return res.status(enum_.CODE_INTERNAL_SERVER_ERROR).send(await magic.ResponseService('Failure',enum_.CRASH_LOGIC,err,''));
     }
 }
