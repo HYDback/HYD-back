@@ -89,10 +89,10 @@ exports.Signin = async (nick, contra) => {
             if(match){
                 return await {token: jwt.sign({ dataUser }, config.KEY)};
             }else{
-                return false
+                return {err:{code: 123, messsage: 'Usuario y/o contraseña invalidos'}}
             }
         }else{
-            return false
+            return {err:{code: 123, messsage: 'Usuario inexistente o deshabilitado'}}
         }      
     }catch(err){
         console.log(" err orm-user.Signin = ", err);
@@ -110,6 +110,34 @@ exports.verifyToken = async (token) => {
         }    
     }catch(err){
         console.log(" err orm-user.verifyToken = ", err);
+        return await {err:{code: 123, messsage: err}}
+    }
+}
+
+exports.GetByFilter = async ( nombre, cedula, estado ) =>{
+    let filter = "";
+    let at = [];
+    if(nombre) at.push(['nombre',nombre])
+    if(cedula) at.push(['cedula',cedula])
+    if(estado) at.push(['estado',estado])
+    at.push(['tipo','Operador'])
+    if(at.length > 0) filter += 'WHERE '
+    for (let index = 0; index < at.length; index++) {
+        if(index == 0){
+            if(at[index][0]=='nombre'){
+                filter+= `${at[index][0]} LIKE '%${at[index][1]}%'`
+            }else{
+                filter+= `${at[index][0]} = '${at[index][1]}'`
+            }
+        }else{
+            filter+= ` AND ${at[index][0]} = '${at[index][1]}'`
+        }
+    }
+    try{
+        const response = await pool.query(`SELECT * FROM usuario ${filter} ORDER BY cedula`);
+        return response.rows;
+    }catch(err){
+        console.log(" err orm-product.GetByFilter = ", err);
         return await {err:{code: 123, messsage: err}}
     }
 }

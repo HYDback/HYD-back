@@ -20,22 +20,29 @@ exports.GetById = async ( Id ) =>{
     }
 }
 
-exports.GetByFilter = async ( nombre, estado, categoria_id) => {
+exports.GetByFilter = async ( nombre, estado, categoria_id, cantidad) => {
     let filter = "";
     let at = [];
     if(nombre) at.push(['p.nombre',nombre])
     if(estado) at.push(['p.estado',estado])
     if(categoria_id) at.push(['p.categoria_id',categoria_id])
+    if(cantidad) at.push(['p.cantidad',cantidad])
     if(at.length > 0) filter += 'WHERE '
     for (let index = 0; index < at.length; index++) {
         if(index == 0){
-            if(at[index][0]=='nombre'){
+            if(at[index][0]=='p.nombre'){
                 filter+= `${at[index][0]} LIKE '%${at[index][1]}%'`
+            }else if(at[index][0]=='p.cantidad'){
+                filter+= `${at[index][0]} >= '${at[index][1]}'`
             }else{
                 filter+= `${at[index][0]} = '${at[index][1]}'`
             }
         }else{
-            filter+= ` AND ${at[index][0]} = '${at[index][1]}'`
+            if(at[index][0]=='p.cantidad'){
+                filter+= ` AND ${at[index][0]} >= '${at[index][1]}'`
+            }else{
+                filter+= ` AND ${at[index][0]} = '${at[index][1]}'`
+            }
         }
     }
     try{

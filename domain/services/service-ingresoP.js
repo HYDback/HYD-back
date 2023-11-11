@@ -64,11 +64,11 @@ exports.GetByUsu = async (req, res) =>{
     }
 }
 
-exports.GetByDate = async (req, res) =>{
+exports.GetByFilter = async (req, res) =>{
     let status = true, errorCode ='', message='', data='', statusCode=0, resp={};
     try{
-        const {Dateini, Datefin} = req.body;
-        respOrm = await ormIngresoP.GetByDate(Dateini, Datefin);
+        const {dateIni, dateFin, producto_id} = req.body;
+        respOrm = await ormIngresoP.GetByFilter(dateIni, dateFin, producto_id);
         if(respOrm && respOrm.err){
             status = false, errorCode = respOrm.err.code, message = respOrm.err.messsage, statusCode = enum_.CODE_BAD_REQUEST;
         }else{

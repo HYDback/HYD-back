@@ -1,39 +1,34 @@
 const pool = require('../repositories/repository_postgre');
 const format = require('pg-format');
 
-exports.GetAll = async () =>{
-    try{
-        const response = await pool.query(`SELECT ingreso_producto.id, ingreso_producto.cantidad, to_char( ingreso_producto.fecha, 'YYYY-MON-DD') as fecha, ingreso_producto.producto_id, ingreso_producto.usuario_id, producto.nombre, usuario.nombre FROM ingreso_producto INNER JOIN producto ON producto.id = ingreso_producto.producto_id INNER JOIN usuario ON usuario.cedula = ingreso_producto.usuario_id`);
-        return response.rows;
-    }catch(err){
-        console.log(" err orm-ingresoP.GetAll = ", err);
-        return await {err:{code: 123, messsage: err}}
+exports.GetByFilter = async ( dateIni, dateFin, id ) =>{
+    let filter = "";
+    let at = [];
+    if(dateIni) at.push(['ip.fecha','ini',dateIni])
+    if(dateFin) at.push(['ip.fecha','fin',dateFin])
+    if(id) at.push(['ip.producto_id','other',id])
+    if(at.length > 0) filter += 'WHERE '
+    for (let index = 0; index < at.length; index++) {
+        if(index == 0){
+            if(at[index][1]=='ini'){
+                filter+= `${at[index][0]} >= '%${at[index][2]}%'`
+            }else if(at[index][1]=='fin'){
+                filter+= `${at[index][0]} <= '%${at[index][2]}%'`
+            }else{
+                filter+= `${at[index][0]} = '${at[index][2]}'`
+            }
+        }else{
+            if(at[index][1]=='ini'){
+                filter+= ` AND ${at[index][0]} >= '%${at[index][2]}%'`
+            }else if(at[index][1]=='fin'){
+                filter+= ` AND ${at[index][0]} <= '%${at[index][2]}%'`
+            }else{
+                filter+= ` AND ${at[index][0]} = '${at[index][2]}'`
+            }
+        }
     }
-}
-
-exports.GetById = async ( Id ) =>{
     try{
-        const response = await pool.query(`SELECT ingreso_producto.id, ingreso_producto.cantidad, to_char( ingreso_producto.fecha, 'YYYY-MON-DD') as fecha, ingreso_producto.producto_id, ingreso_producto.usuario_id, producto.nombre, usuario.nombre FROM ingreso_producto INNER JOIN producto ON producto.id = ingreso_producto.producto_id INNER JOIN usuario ON usuario.cedula = ingreso_producto.usuario_id WHERE producto_id = ${Id}`);
-        return response.rows;
-    }catch(err){
-        console.log(" err orm-ingresoP.GetById = ", err);
-        return await {err:{code: 123, messsage: err}}
-    }
-}
-
-exports.GetByUsu = async ( Id ) =>{
-    try{
-        const response = await pool.query(`SELECT ingreso_producto.id, ingreso_producto.cantidad, to_char( ingreso_producto.fecha, 'YYYY-MON-DD') as fecha, ingreso_producto.producto_id, ingreso_producto.usuario_id, producto.nombre, usuario.nombre FROM ingreso_producto INNER JOIN producto ON producto.id = ingreso_producto.producto_id INNER JOIN usuario ON usuario.cedula = ingreso_producto.usuario_id WHERE usuario_id = ${Id}`);
-        return response.rows;
-    }catch(err){
-        console.log(" err orm-ingresoP.GetById = ", err);
-        return await {err:{code: 123, messsage: err}}
-    }
-}
-
-exports.GetByDate = async ( Dateini, Datefin ) =>{
-    try{
-        const response = await pool.query(`SELECT ingreso_producto.id, ingreso_producto.cantidad, to_char( ingreso_producto.fecha, 'YYYY-MON-DD') as fecha, ingreso_producto.producto_id, ingreso_producto.usuario_id, producto.nombre, usuario.nombre FROM ingreso_producto INNER JOIN producto ON producto.id = ingreso_producto.producto_id INNER JOIN usuario ON usuario.cedula = ingreso_producto.usuario_id WHERE fecha_ing >= '${Dateini}' AND fecha_ing <= '${Datefin}'`);
+        const response = await pool.query(`SELECT ip.id, ip.cantidad, to_char( ip.fecha, 'YYYY-MON-DD') as fecha, ip.producto_id, ip.usuario_id, producto.nombre as nombreProducto, usuario.nombre as nombreUsuario FROM ingreso_producto ip INNER JOIN producto ON producto.id = ip.producto_id INNER JOIN usuario ON usuario.cedula = ip.usuario_id ${filter}`);
         return response.rows;
     }catch(err){
         console.log(" err orm-ingresoP.GetByDate = ", err);
@@ -44,7 +39,7 @@ exports.GetByDate = async ( Dateini, Datefin ) =>{
 
 exports.Store = async ( ingresos ) =>{
     try{
-        const response = await pool.query(format('INSERT INTO ingreso_producto (cantidad, producto_id, usuario_id) VALUES %L', ingresos));
+        const response = await pool.query(format('INSERT INTO ingreso_producto (cantidad, fecha, producto_id, usuario_id) VALUES %L', ingresos));
         return true
     }catch(err){
         console.log(" err orm-ingresoP.Store = ", err);

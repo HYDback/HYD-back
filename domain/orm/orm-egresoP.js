@@ -1,59 +1,46 @@
 const pool = require('../repositories/repository_postgre');
 const format = require('pg-format');
 
-exports.GetAll = async () =>{
-    try{
-        const response = await pool.query(`SELECT egreso_producto.id, egreso_producto.cantidad, to_char( egreso_producto.fecha, 'YYYY-MON-DD') as fecha, egreso_producto.producto_id, egreso_producto.usuario_id, egreso_producto.cliente_id, producto.nombre, usuario.nombre, cliente.nombre FROM egreso_producto INNER JOIN producto ON producto.id = egreso_producto.producto_id INNER JOIN usuario ON usuario.cedula = egreso_producto.usuario_id INNER JOIN cliente ON cliente.cedula = egreso_producto.cliente_id`);
-        return response.rows;
-    }catch(err){
-        console.log(" err orm-egresoP.GetAll = ", err);
-        return await {err:{code: 123, messsage: err}}
+exports.GetByFilter = async ( dateIni, dateFin, producto_id, cliente_id ) =>{
+    let filter = "";
+    let at = [];
+    if(dateIni) at.push(['ep.fecha','ini',dateIni])
+    if(dateFin) at.push(['ep.fecha','fin',dateFin])
+    if(producto_id) at.push(['ep.producto_id','other',producto_id])
+    if(cliente_id) at.push(['ep.cliente_id','other',cliente_id])
+    if(at.length > 0) filter += 'WHERE '
+    for (let index = 0; index < at.length; index++) {
+        if(index == 0){
+            if(at[index][1]=='ini'){
+                filter+= `${at[index][0]} >= '%${at[index][2]}%'`
+            }else if(at[index][1]=='fin'){
+                filter+= `${at[index][0]} <= '%${at[index][2]}%'`
+            }else{
+                filter+= `${at[index][0]} = '${at[index][2]}'`
+            }
+        }else{
+            if(at[index][1]=='ini'){
+                filter+= ` AND ${at[index][0]} >= '%${at[index][2]}%'`
+            }else if(at[index][1]=='fin'){
+                filter+= ` AND ${at[index][0]} <= '%${at[index][2]}%'`
+            }else{
+                filter+= ` AND ${at[index][0]} = '${at[index][2]}'`
+            }
+        }
     }
-}
-
-exports.GetById = async ( Id ) =>{
     try{
-        const response = await pool.query(`SELECT egreso_producto.id, egreso_producto.cantidad, to_char( egreso_producto.fecha, 'YYYY-MON-DD') as fecha, egreso_producto.producto_id, egreso_producto.usuario_id, egreso_producto.cliente_id, producto.nombre, usuario.nombre, cliente.nombre FROM egreso_producto INNER JOIN producto ON producto.id = egreso_producto.producto_id INNER JOIN usuario ON usuario.cedula = egreso_producto.usuario_id INNER JOIN cliente ON cliente.cedula = egreso_producto.cliente_id WHERE producto_id = ${Id}`);
+        const response = await pool.query(`SELECT ep.id, ep.cantidad, to_char( ep.fecha, 'YYYY-MON-DD') as fecha, ep.producto_id, ep.usuario_id, ep.cliente_id, producto.nombre as nombreproducto, usuario.nombre as nombreusuario, cliente.nombre as nombrecliente FROM egreso_producto ep INNER JOIN producto ON producto.id = ep.producto_id INNER JOIN usuario ON usuario.cedula = ep.usuario_id INNER JOIN cliente ON cliente.cedula = ep.cliente_id ${filter}`);
+        console.log(response)
         return response.rows;
     }catch(err){
-        console.log(" err orm-egresoP.GetById = ", err);
-        return await {err:{code: 123, messsage: err}}
-    }
-}
-
-exports.GetByUsu = async ( Id ) =>{
-    try{
-        const response = await pool.query(`SELECT egreso_producto.id, egreso_producto.cantidad, to_char( egreso_producto.fecha, 'YYYY-MON-DD') as fecha, egreso_producto.producto_id, egreso_producto.usuario_id, egreso_producto.cliente_id, producto.nombre, usuario.nombre, cliente.nombre FROM egreso_producto INNER JOIN producto ON producto.id = egreso_producto.producto_id INNER JOIN usuario ON usuario.cedula = egreso_producto.usuario_id INNER JOIN cliente ON cliente.cedula = egreso_producto.cliente_id WHERE usuario_id = ${Id}`);
-        return response.rows;
-    }catch(err){
-        console.log(" err orm-egresoP.GetByUsu = ", err);
-        return await {err:{code: 123, messsage: err}}
-    }
-}
-
-exports.GetByCli = async ( Id ) =>{
-    try{
-        const response = await pool.query(`SELECT egreso_producto.id, egreso_producto.cantidad, to_char( egreso_producto.fecha, 'YYYY-MON-DD') as fecha, egreso_producto.producto_id, egreso_producto.usuario_id, egreso_producto.cliente_id, producto.nombre, usuario.nombre, cliente.nombre FROM egreso_producto INNER JOIN producto ON producto.id = egreso_producto.producto_id INNER JOIN usuario ON usuario.cedula = egreso_producto.usuario_id INNER JOIN cliente ON cliente.cedula = egreso_producto.cliente_id WHERE cliente_id = ${Id}`);
-        return response.rows;
-    }catch(err){
-        console.log(" err orm-egresoP.GetByCli = ", err);
-        return await {err:{code: 123, messsage: err}}
-    }
-}
-
-exports.GetByDate = async ( Dateini, Datefin ) =>{
-    try{
-        const response = await pool.query(`SELECT egreso_producto.id, egreso_producto.cantidad, to_char( egreso_producto.fecha, 'YYYY-MON-DD') as fecha, egreso_producto.producto_id, egreso_producto.usuario_id, egreso_producto.cliente_id, producto.nombre, usuario.nombre, cliente.nombre FROM egreso_producto INNER JOIN producto ON producto.id = egreso_producto.producto_id INNER JOIN usuario ON usuario.cedula = egreso_producto.usuario_id INNER JOIN cliente ON cliente.cedula = egreso_producto.cliente_id WHERE fecha >= '${Dateini}' AND fecha <= '${Datefin}'`);
-        return response.rows;
-    }catch(err){
-        console.log(" err orm-egresoP.GetByDate = ", err);
+        console.log(" err orm-ingresoP.GetByDate = ", err);
         return await {err:{code: 123, messsage: err}}
     }
 }
 
 exports.Store = async ( egresos ) =>{
     try{
-        const response = await pool.query(format('INSERT INTO egreso_producto (cantidad, producto_id, usuario_id, cliente_id) VALUES %L', egresos));
+        const response = await pool.query(format('INSERT INTO egreso_producto (cantidad, fecha, producto_id, usuario_id, cliente_id) VALUES %L', egresos));
         return true
     }catch(err){
         console.log(" err orm-egresoP.Store = ", err);

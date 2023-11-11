@@ -85,3 +85,43 @@ exports.Store = async (req, res) =>{
         return res.status(enum_.CODE_INTERNAL_SERVER_ERROR).send(await magic.ResponseService('Failure',enum_.CRASH_LOGIC,'err',''));
     }
 }
+
+exports.GetByFilter = async (req, res) =>{
+    let status = true, errorCode ='', message='', data='', statusCode=0, resp={};
+    try{
+        const { nombre, cedula, estado } = req.body;
+        respOrm = await ormCliente.GetByFilter( nombre, cedula, estado );
+        if(respOrm.err){
+            status = false, errorCode = respOrm.err.code, message = respOrm.err.messsage, statusCode = enum_.CODE_BAD_REQUEST;
+        }else{
+            message = 'Success Response', data = respOrm, statusCode = enum_.CODE_OK;
+        }
+        resp = await magic.ResponseService(status,errorCode,message,data)
+        return res.status(statusCode).send(resp);
+    } catch(err) {
+        console.log("err = ", err);
+        return res.status(enum_.CODE_INTERNAL_SERVER_ERROR).send(await magic.ResponseService('Failure',enum_.CRASH_LOGIC,'err',''));
+    }
+}
+
+exports.UpdateById = async (req, res) =>{
+    let status = true, errorCode ='', message='', data='', statusCode=0, resp={};
+    try{
+        const { estado, cedula } = req.body;
+        if( estado && cedula ){
+            respOrm = await ormCliente.Update( estado, cedula );
+            if(respOrm.err){
+                status = false, errorCode = respOrm.err.code, message = respOrm.err.messsage, statusCode = enum_.CODE_BAD_REQUEST;
+            }else{
+                message = 'Cliente actualizado', statusCode = enum_.CODE_CREATED;
+            }
+        }else{
+            status = false, errorCode = enum_.ERROR_REQUIRED_FIELD, message = 'All fields are required', statusCode = enum_.CODE_BAD_REQUEST;
+        }
+        resp = await magic.ResponseService(status,errorCode,message,data)
+        return res.status(statusCode).send(resp);
+    } catch(err) {
+        console.log("err = ", err);
+        return res.status(enum_.CODE_INTERNAL_SERVER_ERROR).send(await magic.ResponseService('Failure',enum_.CRASH_LOGIC,err,''));
+    }
+}

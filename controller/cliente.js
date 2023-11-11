@@ -12,6 +12,7 @@ router.get('/clientes/', clientes.GetAll);
 router.get('/clientes/:id', clientes.GetById);
 router.post('/clientes/', clientes.Store);
 router.post('/clientes/exist', clientes.GetByForm);
-
+router.post('/clientes/filter', clientes.GetByFilter);
+router.put('/clientes/', clientes.UpdateById);
 
 module.exports = router;

@@ -20,12 +20,13 @@ exports.GetById = async ( Id ) =>{
     }
 }
 
-exports.GetByFilter = async ( cedula, nombre, estado ) =>{
+exports.GetByFilter = async ( nombre, cedula, estado ) =>{
     let filter = "";
     let at = [];
-    if(nombre != "") at.push(['nombre',nombre])
-    if(cedula != "") at.push(['cedula',cedula])
-    if(estado != "") at.push(['estado',estado])
+    if(nombre) at.push(['nombre',nombre])
+    if(cedula) at.push(['cedula',cedula])
+    if(estado) at.push(['estado',estado])
+    if(at.length > 0) filter += 'WHERE '
     for (let index = 0; index < at.length; index++) {
         if(index == 0){
             if(at[index][0]=='nombre'){
@@ -38,7 +39,7 @@ exports.GetByFilter = async ( cedula, nombre, estado ) =>{
         }
     }
     try{
-        const response = await pool.query(`SELECT * FROM cliente WHERE ${filter}`);
+        const response = await pool.query(`SELECT * FROM cliente ${filter} ORDER BY cedula`);
         return response.rows;
     }catch(err){
         console.log(" err orm-product.GetByFilter = ", err);
@@ -53,6 +54,16 @@ exports.Store = async ( cedula, nombre, apellido, celular, correo, estado ) =>{
         return true
     }catch(err){
         console.log(" err orm-cliente.Store = ", err);
+        return await {err:{code: 123, messsage: err}}
+    }
+}
+
+exports.Update = async ( estado, cedula ) =>{
+    try{
+        const response = await pool.query(`UPDATE cliente SET estado = $1 WHERE cedula = $2`, [estado, cedula]);
+        return true
+    }catch(err){
+        console.log(" err orm-cliente.Update = ", err);
         return await {err:{code: 123, messsage: err}}
     }
 }

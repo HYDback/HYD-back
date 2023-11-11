@@ -45,8 +45,8 @@ exports.GetById = async (req, res) =>{
 exports.GetByFilter = async (req, res) =>{
     let status = true, errorCode ='', message='', data='', statusCode=0, resp={};
     try{
-        const { nombre, estado, categoria_id } = req.body;
-        respOrm = await ormProduct.GetByFilter( nombre, estado, categoria_id );
+        const { nombre, estado, categoria_id, cantidad } = req.body;
+        respOrm = await ormProduct.GetByFilter( nombre, estado, categoria_id, cantidad );
         if(respOrm.err){
             status = false, errorCode = respOrm.err.code, message = respOrm.err.messsage, statusCode = enum_.CODE_BAD_REQUEST;
         }else{
