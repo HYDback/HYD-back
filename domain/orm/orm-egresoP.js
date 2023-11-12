@@ -30,7 +30,6 @@ exports.GetByFilter = async ( dateIni, dateFin, producto_id, cliente_id ) =>{
     }
     try{
         const response = await pool.query(`SELECT ep.id, ep.cantidad, to_char( ep.fecha, 'YYYY-MON-DD') as fecha, ep.producto_id, ep.usuario_id, ep.cliente_id, producto.nombre as nombreproducto, usuario.nombre as nombreusuario, cliente.nombre as nombrecliente FROM egreso_producto ep INNER JOIN producto ON producto.id = ep.producto_id INNER JOIN usuario ON usuario.cedula = ep.usuario_id INNER JOIN cliente ON cliente.cedula = ep.cliente_id ${filter}`);
-        console.log(response)
         return response.rows;
     }catch(err){
         console.log(" err orm-ingresoP.GetByDate = ", err);
