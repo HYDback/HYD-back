@@ -16,9 +16,9 @@ describe('Usuario Endpoints', () => {
             .post('/api/users/')
             .send({
                 cedula: 1004845322,
-                nombre: "David Celis",
-                correo: "david@gmail.com",
-                nick: "DavidC0205",
+                nombre: "Sneyder Rubio",
+                correo: "esneider@gmail.com",
+                nick: "ruby",
                 contra: "12345789A!",
                 tipo: "Operador",
                 estado: 'ACTIVO'
@@ -33,14 +33,14 @@ describe('Usuario Endpoints', () => {
             .send();
         expect(res.statusCode).toEqual(200);
         expect(res.body.status).toEqual(true);
-        expect(res.body.Resp.data[0].nombre).toEqual('David Celis')
+        expect(res.body.Resp.data[0].nombre).toEqual('Sneyder Rubio')
     });
 
     test('deberia iniciar sesion un usuario', async () => {
         const res = await request(app)
             .post('/api/users/signin')
             .send({
-                "nick": "DavidC0205",
+                "nick": "ruby",
                 "contra": "12345789A!"
             });
         expect(res.statusCode).toEqual(200);

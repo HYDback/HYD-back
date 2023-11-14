@@ -1,4 +1,4 @@
-const   express     = require('express'),
+    const   express     = require('express'),
         router      = express.Router(),
         magic       = require('../util/magic'),
         categories       = require('../domain/services/service-categoria');
