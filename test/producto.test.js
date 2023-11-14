@@ -10,23 +10,21 @@ describe('Producto Endpoints', () => {
         expect(res.body.status).toEqual(true);
     });
 
-    test('deberia obtener producto por su id', async () => {
-        const res = await request(app)
-            .get('/api/products/'+1)
-            .send();
-        expect(res.statusCode).toEqual(200);
-        expect(res.body.status).toEqual(true);
-        expect(res.body.Resp.data[0].nombre_prod).toEqual('Corte de sandalia')
-    });
-
-    test('deberia obtener productos filtrados por calzado', async () => {
+    test('deberia obtener productos filtrados por nombre', async () => {
         const res = await request(app)
             .post('/api/products/filter')
             .send({
-                nombre_prod: "",
-                tipo_prod: "",
-                calzado_prod: "Sandalia",
-                genero_prod: ""
+                nombre: "Mesa de centro",
+            });
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.status).toEqual(true);
+    })
+
+    test('deberia obtener productos filtrados por estado', async () => {
+        const res = await request(app)
+            .post('/api/products/filter')
+            .send({
+                estado: "",
             });
         expect(res.statusCode).toEqual(200);
         expect(res.body.status).toEqual(true);

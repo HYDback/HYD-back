@@ -1,21 +1,31 @@
 const request = require('supertest');
 const app = require('../server');
 
-describe('Cliente Endpoints', () => {
-    test('deberia obtener todos los clientes', async () => {
+describe('categoria Endpoints', () => {
+    test('deberia obtener todas las categorias', async () => {
         const res = await request(app)
-            .get('/api/clientes/')
+            .get('/api/categoria/')
             .send();
         expect(res.statusCode).toEqual(200);
         expect(res.body.status).toEqual(true);
     });
 
-    test('deberia obtener cliente por su cedula', async () => {
+    test('deberia obtener categoria por su nombre', async () => {
         const res = await request(app)
-            .get('/api/clientes/'+1004852147)
+            .get('/api/products/'+1)
             .send();
         expect(res.statusCode).toEqual(200);
         expect(res.body.status).toEqual(true);
+        expect(res.body.Resp.data[0].nombre_prod).toEqual('Salas')
     });
+
+    test('deberia obtener categorias filtradas por estado ', async () => {
+        const res = await request(app)
+            .post('/api/products/filter')
+            .send({
+                estado: "",
+            });
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.status).toEqual(true);
+    })
 });
-
